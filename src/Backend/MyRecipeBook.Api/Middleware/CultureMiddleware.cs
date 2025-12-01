@@ -8,15 +8,25 @@ public class CultureMiddleware
 
     public CultureMiddleware(RequestDelegate next)
     {
-        
+        _next = next;
     }
+
     public async Task Invoke(HttpContext context)
     {
+        var SupportedLanguages = CultureInfo.GetCultures(CultureTypes.AllCultures);
+
         var requestedCulture = context.Request.Headers.AcceptLanguage.FirstOrDefault();
 
-        var cultureInfo = new CultureInfo(requestedCulture);
+        var cultureInfo = new CultureInfo("en");
+
+        if (string.IsNullOrWhiteSpace(requestedCulture) == false && SupportedLanguages.Any(c =>c.Name.Equals(requestedCulture)))
+        {
+            cultureInfo = new CultureInfo(requestedCulture);
+        }
 
         CultureInfo.CurrentCulture = cultureInfo;
         CultureInfo.CurrentUICulture = cultureInfo;
+
+        await _next(context);
     }
 }

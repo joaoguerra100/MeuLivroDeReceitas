@@ -129,4 +129,8 @@
     <value>Password must be at least 6 characters long</value>
     <comment/>
   </data>
+  <data name="UNKNOWN_ERROR" xml:space="preserve">
+    <value>Undefined error</value>
+    <comment/>
+  </data>
 </root>

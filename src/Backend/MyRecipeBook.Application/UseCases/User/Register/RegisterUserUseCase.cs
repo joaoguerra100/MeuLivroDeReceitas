@@ -1,20 +1,43 @@
+using System.Threading.Tasks;
+using AutoMapper;
+using MyRecipeBook.Application.Services.AutoMapper;
+using MyRecipeBook.Application.Services.Cryptography;
 using MyRecipeBook.Communication.Requests;
 using MyRecipeBook.Communication.Responses;
+using MyRecipeBook.Domain.Repositories;
+using MyRecipeBook.Domain.Repositories.User;
+using MyRecipeBook.Exceptions.ExceptionsBase;
 
 namespace MyRecipeBook.Application.UseCases.User.Register;
 
-public class RegisterUserUseCase
+public class RegisterUserUseCase : IRegisterUserUseCase
 {
-    public ResponseRegisteredUserJson Execute(RequestRegisterUserJson request)
+    private readonly IUserWriteOnlyRepository _writeOnlyRepository;
+    private readonly IUserReadOnlyRepository _readOnlyRepository;
+    private readonly IUnitfOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+    private readonly PasswordEncriptor _passwordEncriptor;
+
+    public RegisterUserUseCase(IUserWriteOnlyRepository writeOnlyRepository, IUserReadOnlyRepository readOnlyRepository, IMapper mapper, PasswordEncriptor passwordEncriptor, IUnitfOfWork unitOfWork)
     {
-        // Validar a request
+        _writeOnlyRepository = writeOnlyRepository;
+        _readOnlyRepository = readOnlyRepository;
+        _mapper = mapper;
+        _passwordEncriptor = passwordEncriptor;
+        _unitOfWork = unitOfWork;
+    }
+
+    public async Task<ResponseRegisteredUserJson> Execute(RequestRegisterUserJson request)
+    {
         Validate(request);
 
-        // Mapear a request em uma entidade
+        var user = _mapper.Map<Domain.Entities.User>(request);
+        user.Password = _passwordEncriptor.Encrypt(request.Password);
 
-        // Criptografia da senha
+        await _writeOnlyRepository.Add(user);
 
-        // Salvar no bando de dados
+        await _unitOfWork.Commit();
+
         return new ResponseRegisteredUserJson
         {
             Name = request.Name,
@@ -29,8 +52,8 @@ public class RegisterUserUseCase
 
         if(result.IsValid == false)
         {
-            var errorMessages = result.Errors.Select(e => e.ErrorMessage);
-            throw new Exception();
+            var errorMessages = result.Errors.Select(e => e.ErrorMessage).ToList();
+            throw new ErrorOnValidationException(errorMessages);
         }
     }
 }

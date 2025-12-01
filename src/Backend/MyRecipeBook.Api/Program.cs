@@ -1,11 +1,18 @@
-using System.Globalization;
+using MyRecipeBook.API.Filtros;
 using MyRecipeBook.API.Middleware;
+using MyRecipeBook.Application;
+using MyRecipeBook.Infrastructure;
 
 var builder = WebApplication.CreateBuilder(args);
 
 builder.Services.AddControllers();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+
+builder.Services.AddMvc(options => options.Filters.Add(typeof(ExceptionFilter)));
+
+builder.Services.AddAplication(builder.Configuration);
+builder.Services.AddInfrastructure(builder.Configuration);
 
 var app = builder.Build();
 

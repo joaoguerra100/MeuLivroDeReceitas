@@ -129,4 +129,8 @@
     <value>A senha deve ter no mínimo 6 caracteres</value>
     <comment/>
   </data>
+  <data name="UNKNOWN_ERROR" xml:space="preserve">
+    <value>Error deconhecido</value>
+    <comment/>
+  </data>
 </root>
