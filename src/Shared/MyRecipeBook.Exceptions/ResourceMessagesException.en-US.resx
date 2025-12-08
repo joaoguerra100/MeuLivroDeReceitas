@@ -133,4 +133,8 @@
     <value>Undefined error</value>
     <comment/>
   </data>
+  <data name="EMAIL_ALREADY_REGISTERED" xml:space="preserve">
+    <value>Email already registered</value>
+    <comment/>
+  </data>
 </root>

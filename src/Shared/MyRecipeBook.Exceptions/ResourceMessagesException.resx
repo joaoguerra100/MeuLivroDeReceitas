@@ -133,4 +133,8 @@
     <value>Erro Desconhecido</value>
     <comment/>
   </data>
+  <data name="EMAIL_ALREADY_REGISTERED" xml:space="preserve">
+    <value>Email ja registrado</value>
+    <comment/>
+  </data>
 </root>
