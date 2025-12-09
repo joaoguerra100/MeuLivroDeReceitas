@@ -137,4 +137,8 @@
     <value>Email ja registrado</value>
     <comment/>
   </data>
+  <data name="EMAIL_INVALID" xml:space="preserve">
+    <value>Email invalido</value>
+    <comment/>
+  </data>
 </root>
