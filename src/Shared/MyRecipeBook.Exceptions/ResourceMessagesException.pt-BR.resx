@@ -137,4 +137,8 @@
     <value>E-mail ja registrado</value>
     <comment/>
   </data>
+  <data name="EMAIL_OR_PASSWORD_INVALID" xml:space="preserve">
+    <value>E-mail e/ou senha invalidos.</value>
+    <comment/>
+  </data>
 </root>

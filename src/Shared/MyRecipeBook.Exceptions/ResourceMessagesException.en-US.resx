@@ -141,4 +141,8 @@
     <value>Email invalid</value>
     <comment/>
   </data>
+  <data name="EMAIL_OR_PASSWORD_INVALID" xml:space="preserve">
+    <value>E-mail and or password invalid.</value>
+    <comment/>
+  </data>
 </root>

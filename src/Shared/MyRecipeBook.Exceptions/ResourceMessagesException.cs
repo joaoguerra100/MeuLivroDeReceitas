@@ -5,7 +5,7 @@ namespace MyRecipeBook.Exceptions
 {
     public static class ResourceMessagesException
     {
-        private static readonly ResourceManager ResourceManager =
+        public static readonly ResourceManager ResourceManager =
             new ResourceManager("MyRecipeBook.Exceptions.ResourceMessagesException", typeof(ResourceMessagesException).Assembly);
 
         public static string GetMessage(string key)
