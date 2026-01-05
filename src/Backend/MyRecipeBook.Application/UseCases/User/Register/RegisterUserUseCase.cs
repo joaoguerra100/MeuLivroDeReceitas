@@ -6,6 +6,7 @@ using MyRecipeBook.Communication.Requests;
 using MyRecipeBook.Communication.Responses;
 using MyRecipeBook.Domain.Repositories;
 using MyRecipeBook.Domain.Repositories.User;
+using MyRecipeBook.Domain.Security.Tokens;
 using MyRecipeBook.Exceptions;
 using MyRecipeBook.Exceptions.ExceptionsBase;
 
@@ -17,15 +18,17 @@ public class RegisterUserUseCase : IRegisterUserUseCase
     private readonly IUserReadOnlyRepository _readOnlyRepository;
     private readonly IUnitfOfWork _unitOfWork;
     private readonly IMapper _mapper;
+    private readonly IAccessTokenGenerator _accessTokenGenerator;
     private readonly PasswordEncriptor _passwordEncriptor;
 
-    public RegisterUserUseCase(IUserWriteOnlyRepository writeOnlyRepository, IUserReadOnlyRepository readOnlyRepository, IMapper mapper, PasswordEncriptor passwordEncriptor, IUnitfOfWork unitOfWork)
+    public RegisterUserUseCase(IUserWriteOnlyRepository writeOnlyRepository, IUserReadOnlyRepository readOnlyRepository, IMapper mapper, PasswordEncriptor passwordEncriptor, IUnitfOfWork unitOfWork, IAccessTokenGenerator accessTokenGenerator)
     {
         _writeOnlyRepository = writeOnlyRepository;
         _readOnlyRepository = readOnlyRepository;
         _mapper = mapper;
         _passwordEncriptor = passwordEncriptor;
         _unitOfWork = unitOfWork;
+        _accessTokenGenerator = accessTokenGenerator;
     }
 
     public async Task<ResponseRegisteredUserJson> Execute(RequestRegisterUserJson request)
@@ -34,6 +37,7 @@ public class RegisterUserUseCase : IRegisterUserUseCase
 
         var user = _mapper.Map<Domain.Entities.User>(request);
         user.Password = _passwordEncriptor.Encrypt(request.Password);
+        user.UserIdentifier = Guid.NewGuid();
 
         await _writeOnlyRepository.Add(user);
 
@@ -42,6 +46,10 @@ public class RegisterUserUseCase : IRegisterUserUseCase
         return new ResponseRegisteredUserJson
         {
             Name = user.Name,
+            Tokens = new ResponseTokenJson
+            {
+                AccessToken = _accessTokenGenerator.Generate(user.UserIdentifier)
+            }
         };
     }
 
@@ -53,12 +61,12 @@ public class RegisterUserUseCase : IRegisterUserUseCase
 
         var emailExist = await _readOnlyRepository.ExistActiveUserWithEmail(request.Email);
 
-        if(emailExist)
+        if (emailExist)
         {
             result.Errors.Add(new FluentValidation.Results.ValidationFailure(string.Empty, ResourceMessagesException.GetMessage("EMAIL_ALREADY_REGISTERED")));
         }
 
-        if(result.IsValid == false)
+        if (result.IsValid == false)
         {
             var errorMessages = result.Errors.Select(e => e.ErrorMessage).ToList();
             throw new ErrorOnValidationException(errorMessages);
