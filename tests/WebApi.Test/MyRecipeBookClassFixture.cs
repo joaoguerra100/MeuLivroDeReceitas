@@ -27,17 +27,25 @@ public class MyRecipeBookClassFixture : IClassFixture<CustomWebApplicationFactor
         return await _httpClient.GetAsync(method);
     }
 
+    protected async Task<HttpResponseMessage> DoPut(string method, object request, string token = "", string culture = "en")
+    {
+        ChangerequestCulture(culture);
+        AuthorizationRequest(token);
+
+        return await _httpClient.PutAsJsonAsync(method, request);
+    }
+
     private void ChangerequestCulture(string culture)
     {
-        if(_httpClient.DefaultRequestHeaders.Contains("Accept-Language"))
+        if (_httpClient.DefaultRequestHeaders.Contains("Accept-Language"))
             _httpClient.DefaultRequestHeaders.Remove("Accept-Language");
-        
-        _httpClient.DefaultRequestHeaders.Add("Accept-Language",culture);
+
+        _httpClient.DefaultRequestHeaders.Add("Accept-Language", culture);
     }
 
     private void AuthorizationRequest(string token)
     {
-        if(string.IsNullOrWhiteSpace(token))
+        if (string.IsNullOrWhiteSpace(token))
             return;
 
         _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", token);
