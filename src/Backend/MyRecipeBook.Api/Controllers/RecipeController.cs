@@ -1,9 +1,12 @@
 using Microsoft.AspNetCore.Mvc;
 using MyRecipeBook.Api.Attributes;
 using MyRecipeBook.Api.Binders;
+using MyRecipeBook.Application.UseCases.Recipe.Delete;
 using MyRecipeBook.Application.UseCases.Recipe.Filter;
+using MyRecipeBook.Application.UseCases.Recipe.Generate;
 using MyRecipeBook.Application.UseCases.Recipe.GetById;
 using MyRecipeBook.Application.UseCases.Recipe.Register;
+using MyRecipeBook.Application.UseCases.Recipe.Update;
 using MyRecipeBook.Communication.Requests;
 using MyRecipeBook.Communication.Responses;
 
@@ -38,10 +41,42 @@ public class RecipeController : MyRecipeBookBaseController
     [HttpGet]
     [Route("[id]")]
     [ProducesResponseType(typeof(ResponseRecipeJson), StatusCodes.Status200OK)]
-    [ProducesResponseType(typeof(ResponseErrorJson),StatusCodes.Status404NotFound)]
-    public async Task<IActionResult> GetById([FromServices] IGetRecipeByIdUseCase useCase, [FromRoute] [ModelBinder(typeof(MyRecipeBookIdBinder))] long Id)
+    [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> GetById([FromServices] IGetRecipeByIdUseCase useCase, [FromRoute][ModelBinder(typeof(MyRecipeBookIdBinder))] long Id)
     {
         var response = await useCase.Execute(Id);
+
+        return Ok(response);
+    }
+
+    [HttpDelete]
+    [Route("[id]")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete([FromServices] IDeleteRecipeUseCase useCase, [FromRoute][ModelBinder(typeof(MyRecipeBookIdBinder))] long Id)
+    {
+        await useCase.Execute(Id);
+
+        return NoContent();
+    }
+
+    [HttpPut]
+    [Route("[id]")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Update([FromServices] IUpdateRecipeUseCase useCase, [FromRoute][ModelBinder(typeof(MyRecipeBookIdBinder))] long Id, [FromBody] RequestRecipeJson request)
+    {
+        await useCase.Execute(Id, request);
+
+        return NoContent();
+    }
+
+    [HttpPost("generate")]
+    [ProducesResponseType(typeof(ResponseGenerateRecipeJson), StatusCodes.Status200OK)]
+    [ProducesResponseType(typeof(ResponseErrorJson), StatusCodes.Status400BadRequest)]
+    public async Task<IActionResult> Generate([FromServices] IGenerateRecipeUseCase useCase, [FromBody] RequestGenerateRecipeJson request)
+    {
+        var response  = await useCase.Execute(request);
 
         return Ok(response);
     }

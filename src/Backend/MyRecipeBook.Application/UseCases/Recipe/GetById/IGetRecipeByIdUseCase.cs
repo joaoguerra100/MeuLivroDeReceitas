@@ -4,5 +4,5 @@ namespace MyRecipeBook.Application.UseCases.Recipe.GetById;
 
 public interface IGetRecipeByIdUseCase
 {
-    public Task<ResponseRecipesJson> Execute(long recipeId);
+    public Task<ResponseRecipeJson> Execute(long recipeId);
 }

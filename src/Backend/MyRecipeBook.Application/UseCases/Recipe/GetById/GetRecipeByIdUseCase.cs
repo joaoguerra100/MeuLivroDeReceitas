@@ -20,7 +20,7 @@ public class GetRecipeByIdUseCase : IGetRecipeByIdUseCase
         _repository = repository;
     }
 
-    public async Task<ResponseRecipesJson> Execute(long recipeId)
+    public async Task<ResponseRecipeJson> Execute(long recipeId)
     {
         var loggedUser = await _loggedUser.User();
 
@@ -29,6 +29,6 @@ public class GetRecipeByIdUseCase : IGetRecipeByIdUseCase
         if(recipe == null)
             throw new NotFoundException(ResourceMessagesException.GetMessage("RECIPE_NOT_FOUND"));
 
-        return _mapper.Map<ResponseRecipesJson>(recipe);
+        return _mapper.Map<ResponseRecipeJson>(recipe);
     }
 }
