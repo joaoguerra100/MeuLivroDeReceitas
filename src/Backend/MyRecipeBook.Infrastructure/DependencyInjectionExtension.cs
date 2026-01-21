@@ -9,6 +9,7 @@ using MyRecipeBook.Domain.Repositories.User;
 using MyRecipeBook.Domain.Security.Cryptography;
 using MyRecipeBook.Domain.Security.Tokens;
 using MyRecipeBook.Domain.Services.LoggedUser;
+using MyRecipeBook.Domain.Services.OpenAI;
 using MyRecipeBook.Infrastructure.DataAccess;
 using MyRecipeBook.Infrastructure.DataAccess.Repositories;
 using MyRecipeBook.Infrastructure.Extensions;
@@ -16,6 +17,8 @@ using MyRecipeBook.Infrastructure.Security.Cryptography;
 using MyRecipeBook.Infrastructure.Security.Tokens.Access.Generator;
 using MyRecipeBook.Infrastructure.Security.Tokens.Access.Validator;
 using MyRecipeBook.Infrastructure.Services.LoggedUser;
+using MyRecipeBook.Infrastructure.Services.OpenAI;
+using OpenAI;
 
 namespace MyRecipeBook.Infrastructure;
 
@@ -26,10 +29,11 @@ public static class DependencyInjectionExtension
         AddPasswordEncripter(services, configuration);
         AddRepositories(services);
         AddLoggedUser(services);
+        AddOpenAi(services, configuration);
         AddTokens(services, configuration);
-        if(configuration.IsUnitTestEnvironment())
+        if (configuration.IsUnitTestEnvironment())
             return;
-        
+
         AddDbContext(services, configuration);
         AddFluenteMigrator(services, configuration);
     }
@@ -78,7 +82,23 @@ public static class DependencyInjectionExtension
 
     private static void AddLoggedUser(IServiceCollection services) => services.AddScoped<ILoggedUser, LoggedUser>();
 
-    private static void AddPasswordEncripter(IServiceCollection services,IConfiguration configuration)
+
+
+    private static void AddOpenAi(IServiceCollection services, IConfiguration configuration)
+    {
+        services.AddScoped<IGenerateRecipeAI, ChatGPTService>();
+
+        var key = configuration.GetValue<string>("Settings:OpenAI:ApiKey");
+
+        if (string.IsNullOrWhiteSpace(key))
+            throw new InvalidOperationException("OpenAI ApiKey não configurada.");
+
+
+        services.AddSingleton(new OpenAIClient(key));
+    }
+
+
+    private static void AddPasswordEncripter(IServiceCollection services, IConfiguration configuration)
     {
         var additionalKey = configuration.GetValue<string>("Settings:Password:AdditionalKey");
         services.AddScoped<IPasswordEncripter>(option => new Sha512Encripter(additionalKey!));

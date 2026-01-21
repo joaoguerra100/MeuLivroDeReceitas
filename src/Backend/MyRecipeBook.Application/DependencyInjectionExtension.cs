@@ -5,6 +5,7 @@ using MyRecipeBook.Application.UseCases.Login.DoLogin;
 using MyRecipeBook.Application.UseCases.Recipe.Dashboard;
 using MyRecipeBook.Application.UseCases.Recipe.Delete;
 using MyRecipeBook.Application.UseCases.Recipe.Filter;
+using MyRecipeBook.Application.UseCases.Recipe.Generate;
 using MyRecipeBook.Application.UseCases.Recipe.GetById;
 using MyRecipeBook.Application.UseCases.Recipe.Register;
 using MyRecipeBook.Application.UseCases.Recipe.Update;
@@ -38,6 +39,7 @@ public static class DependencyInjectionExtension
         services.AddScoped<IUpdateRecipeUseCase, UpdateRecipeUseCase>();
         services.AddScoped<IDeleteRecipeUseCase, DeleteRecipeUseCase>();
         services.AddScoped<IGetDashboardUseCase, GetDashboardUseCase>();
+        services.AddScoped<IGenerateRecipeUseCase, GenerateRecipeUseCase>();
     }
 
     private static void AddAutoMapepr(IServiceCollection services)
