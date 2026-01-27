@@ -1,7 +1,9 @@
 using MyRecipeBook.Communication.Responses;
+using MyRecipeBook.Domain.Extensions;
 using MyRecipeBook.Domain.Repositories;
 using MyRecipeBook.Domain.Repositories.Recipe;
 using MyRecipeBook.Domain.Services.LoggedUser;
+using MyRecipeBook.Domain.Services.Storage;
 using MyRecipeBook.Exceptions;
 using MyRecipeBook.Exceptions.ExceptionsBase;
 
@@ -13,13 +15,15 @@ public class DeleteRecipeUseCase : IDeleteRecipeUseCase
     private readonly IRecipeReadOnlyRepository _repositoryRead;
     private readonly IRecipeWriteOnlyRepository _repositoryWrite;
     private readonly IUnitfOfWork _unitfOfWork;
+    private readonly IBlobStorageService _blobStorageService;
 
-    public DeleteRecipeUseCase(ILoggedUser loggedUser, IRecipeReadOnlyRepository repositoryRead, IRecipeWriteOnlyRepository repositoryWrite, IUnitfOfWork unitfOfWork)
+    public DeleteRecipeUseCase(ILoggedUser loggedUser, IRecipeReadOnlyRepository repositoryRead, IRecipeWriteOnlyRepository repositoryWrite, IUnitfOfWork unitfOfWork, IBlobStorageService blobStorageService)
     {
         _loggedUser = loggedUser;
         _repositoryRead = repositoryRead;
         _repositoryWrite = repositoryWrite;
         _unitfOfWork = unitfOfWork;
+        _blobStorageService = blobStorageService;
     }
 
     public async Task Execute(long recipeId)
@@ -30,6 +34,9 @@ public class DeleteRecipeUseCase : IDeleteRecipeUseCase
 
         if(recipe == null)
             throw new NotFoundException(ResourceMessagesException.GetMessage("RECIPE_NOT_FOUND"));
+
+        if(recipe.ImageIdentifier.NotEmpty())
+            await _blobStorageService.Delete(loggedUser, recipe.ImageIdentifier);
 
         await _repositoryWrite.Delete(recipeId);
 
